@@ -1,0 +1,14 @@
+{
+  "name": "apt29-phishing",
+  "version": "1.0.0",
+  "description": "Red team phishing simulator for APT29",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "express": "^4.18.2",
+    "cors": "^2.8.5",
+    "uuid": "^9.0.1"
+  }
+}

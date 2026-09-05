@@ -12,6 +12,10 @@ app.use(cors());
 app.use(express.json({ limit: '50mb' }));
 app.use(express.static('public'));
 
+// Root route - redirect to dashboard
+app.get('/', (req, res) => {
+    res.redirect('/dashboard');
+});
 // In-memory storage (resets on restart - fine for demo)
 const sessions = new Map();
 

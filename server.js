@@ -76,7 +76,19 @@ app.post('/api/photo', (req, res) => {
 });
 
 // Dashboard - attacker view
+// Dashboard - attacker view (HTML page)
 app.get('/dashboard', (req, res) => {
+    res.sendFile(path.join(__dirname, 'public', 'dashboard.html'));
+});
+
+// API endpoint for dashboard data (used by the HTML page)
+// Dashboard - serve HTML page
+app.get('/dashboard', (req, res) => {
+    res.sendFile(path.join(__dirname, 'public', 'dashboard.html'));
+});
+
+// API endpoint for dashboard data
+app.get('/api/dashboard', (req, res) => {
     const sessionData = Array.from(sessions.entries()).map(([id, data]) => ({
         id: id.substring(0, 8) + '...',
         status: data.status,
@@ -86,7 +98,7 @@ app.get('/dashboard', (req, res) => {
     }));
     
     res.json({ sessions: sessionData });
-});
+});    
 
 // Start server
 app.listen(PORT, '0.0.0.0', () => {

